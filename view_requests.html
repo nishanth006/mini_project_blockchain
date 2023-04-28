@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head> 
+<body>
+    <nav class="navbar navbar-expand-lg bg-secondary">
+		<div class="container-fluid">
+			<h1>SCM</h1>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+			<div class="navbar-nav">
+				<a class="nav-link active fs-5" aria-current="page" href="b.html">Home</a>
+				<a class="nav-link fs-5" aria-current="page" href="view_requests.html"> View Requests</a>
+				<a class="nav-link fs-5" aria-current="page" href="login.html">Logout</a>
+			</div>
+			</div>
+		</div>
+		</nav>
+        <div class="container mt-5">
+            <div class="fs-1">Select Request</div>
+            <table class="table table-hover mt-5">
+                <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Request</th>
+				  <th scope="col">Final_Vendor</th>
+                </tr>
+              </thead>
+              <tbody class="table-group-divider" id="table">
+                  
+              </tbody>
+			</table>
+			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog">
+				  <div class="modal-content">
+					<div class="modal-header">
+					  <h1 class="modal-title fs-5" id="staticBackdropLabel"><p id="Final_vendor"></p></h1>
+					  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<table class="table">
+							<thead>
+							  <tr>
+								<th scope="col">#</th>
+								<th scope="col">Item</th>
+								<th scope="col">Quote</th>
+							  </tr>
+							</thead>
+							<tbody id="table_sel">
+							</tbody>
+						  </table>
+					</div>
+					<div class="modal-footer">
+					  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					  <button type="button" class="btn btn-primary">Understood</button>
+					</div>
+				  </div>
+				</div>
+			  </div>
+        </div>
+        <script>
+            //1- connect metamask
+            window.onload = async () => {
+            let account;
+                if(ethereum !== "undefined") {
+                    const accounts = await ethereum.request({method: "eth_requestAccounts"});
+                    account = accounts[0];
+    
+                    //2- connect to smart contract
+                    const ABI =[
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "ord",
+				"type": "string"
+			}
+		],
+		"name": "place_order",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "x",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "email",
+				"type": "string"
+			}
+		],
+		"name": "select_vendor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "email",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "x",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_quote",
+				"type": "string"
+			}
+		],
+		"name": "set_quote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "id",
+				"type": "string"
+			}
+		],
+		"name": "signup",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "id",
+				"type": "string"
+			}
+		],
+		"name": "get_items",
+		"outputs": [
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "x",
+				"type": "uint256"
+			}
+		],
+		"name": "get_quotes",
+		"outputs": [
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getstatus",
+		"outputs": [
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "items",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "quote_selected",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "req_count",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "vendor_email",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+                    const Address = "0xe9432734A1dAB6333Ef6bE82e05e97d4FF428F04";
+                    window.web3 = await new Web3(window.ethereum);
+                    window.contract = await new window.web3.eth.Contract( ABI, Address); 
+					getstatus= await window.contract.methods.getstatus().call();
+					console.log(getstatus);
+					let size=getstatus[0].length;
+                    // read items
+                    let s=""; 
+                    for(let i=size-1;i>=0;i--){
+                        s+=`<tr>
+                            <th scope="row">${size-i }</th>`
+                            
+							if(getstatus[1][i]){
+								s+=`<td><button class="btn btn-primary" disabled onclick="request(${i})">Check Request ${i+1}</button></td>
+									<td><button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="view(${i})">
+                                		View
+                            		</button></td>`
+							}
+							else{
+								s+=`<td><button class="btn btn-primary" onclick="request(${i})">Check Request ${i+1}</button></td><td>None</td></tr>`
+								
+							}
+                        
+                    }
+                    document.getElementById("table").innerHTML=s;
+                }
+            }
+			function view(i){
+				items=getstatus[0][i].split(" ");
+				console.log(items[0]);
+				quotes=getstatus[2][i].split(" ");
+				console.log(quotes[0]);
+				str="";
+				for(let j=0;j<items.length-1;j++){
+					str+=`<tr>
+                        	<th scope="row">${j }</th>
+							<td>${items[j]}</td>
+							<td>${quotes[j]}</td></tr>`
+				}
+				console.log(str);
+				document.getElementById("Final_vendor").innerHTML="Vendor Id :"+getstatus[1];
+				document.getElementById("table_sel").innerHTML=str;
+			}
+            async function request(i){
+				console.log(i);
+                get_quotes= await window.contract.methods.get_quotes(i).call();
+				get_quotes[4]=getstatus[0][i];
+				get_quotes[5]=i+1;
+                console.log(get_quotes);
+                sessionStorage.setItem("get_quotes",JSON.stringify(get_quotes));
+                window.location.href="check_request.html"
+    
+            }
+            
+            
+    
+        </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+    </body>
+    </html>
